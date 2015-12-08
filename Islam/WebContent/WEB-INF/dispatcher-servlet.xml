@@ -87,9 +87,9 @@
 
     <property name="dataSourceProperties">
         <props>
-            <prop key="url">AAA</prop>
-            <prop key="user">AAA</prop>
-            <prop key="password">AAA</prop>
+            <prop key="url">DDD</prop>
+            <prop key="user">DDD</prop>
+            <prop key="password">DDD</prop>
         </props>
     </property>
 	</bean>
