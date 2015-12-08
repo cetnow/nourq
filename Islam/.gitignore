@@ -14,7 +14,7 @@ WebContent/META-INF/
 *.swp
 *~.nib
 local.properties
-.settings/
+#.settings/
 .loadpath
 
 # Eclipse Core
