@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop/ http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+		">
+	<cache:annotation-driven />
+	<!-- generic cache manager -->
+	<bean id="CUtil" class="com.cetnow.util.Util"/>
+	
+	
+<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" 
+                p:cache-manager-ref="ehcache"/>
+<bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+                p:config-location="classpath:ehcache.xml" p:shared="true"/> 
+
+	<mvc:annotation-driven />
+ 	<mvc:resources mapping="/assets/**" location="/assets/" />
+ 	
+	<context:component-scan base-package="com.cetnow.islam.controller" />
+	<context:component-scan base-package="com.cetnow.islam.util" />
+
+	<bean id="configuration" class="com.cetnow.util.UserConfiguration" scope="session">
+		<aop:scoped-proxy/>
+	</bean>
+	
+	<bean id="session" class="com.cetnow.util.Session" scope="session">
+		<aop:scoped-proxy/>
+	</bean>
+	
+	<bean id="shared" class="com.cetnow.util.Shared" scope="application">
+		<aop:scoped-proxy/>
+	</bean>
+	
+	<bean id="filesUtil" class="com.cetnow.util.FilesUtil"/>
+	
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="classpath:langs" />
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="fallbackToSystemLocale" value="false" />
+    </bean>
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+    	<property name="defaultLocale" value="ar" />
+	</bean>
+	
+	<bean id="html" class="com.cetnow.util.Html">
+    	<property name="mr" ref="messageSource" />
+	</bean>
+
+	<mvc:interceptors>  
+        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+              <property name="paramName" value="lang"></property>
+        </bean>
+    </mvc:interceptors>
+    
+	<bean id="templateResolver"
+		class="org.thymeleaf.templateresolver.ServletContextTemplateResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	    <property name="templateMode" value="HTML5" />
+	    <property name="cacheable" value="false"/>
+	</bean>
+	
+	<bean id="templateEngine" class="org.thymeleaf.spring4.SpringTemplateEngine">
+		<property name="templateResolver" ref="templateResolver" />
+	</bean>
+
+	<bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">
+		<property name="templateEngine" ref="templateEngine" />
+		<property name="characterEncoding" value="UTF-8" />
+	</bean>
+	
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+    <property name="poolName" value="springHikariCP" />
+    <property name="connectionTestQuery" value="SELECT 1" />
+    <property name="dataSourceClassName" value="com.mysql.jdbc.jdbc2.optional.MysqlDataSource" />
+
+    <property name="dataSourceProperties">
+        <props>
+            <prop key="url">AAA</prop>
+            <prop key="user">AAA</prop>
+            <prop key="password">AAA</prop>
+        </props>
+    </property>
+	</bean>
+	
+	<!-- HikariCP configuration -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+	    <constructor-arg ref="hikariConfig" />
+	</bean>
+
+
+   <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">  
+	<property name="dataSource" ref="dataSource"></property>  
+   </bean>  
+
+	<bean id="dal" class="com.cetnow.db.DAL">  
+		<property name="jdbc" ref="jdbcTemplate"></property>  
+   </bean>  
+   
+    
+</beans>
